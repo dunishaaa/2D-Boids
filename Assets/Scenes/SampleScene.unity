@@ -244,10 +244,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8366efdcc5e54ca47ae26ce07fb11c49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfBoids: 400
+  numberOfBoids: 62
   speed: 1.0981352
+  perceptionDistance: 0
   boidPrefab: {fileID: 4928792611308274267, guid: ef7a67a76f207c643a6c2ceddaade151, type: 3}
   range: {x: 10, y: 5, z: 0}
+  collision: 0
+  directionMatching: 0
+  centering: 0
+  respawn: 0
 --- !u!4 &672674229
 Transform:
   m_ObjectHideFlags: 0

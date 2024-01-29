@@ -1,18 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Scripting.APIUpdating;
 
 public class Boid : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+
+    Transform[] inRange;
+    public void DirectionMatching(Transform[] boids, float perceptionDistance){
+        foreach(Transform other in boids){
+            if(transform != other && 
+            Vector3.Distance(transform.localPosition, other.localPosition) <= perceptionDistance){
+            }
+        }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    public void Move(float speed){
+        transform.Translate(Vector3.up * Time.deltaTime * speed); 
     }
+   
 }
