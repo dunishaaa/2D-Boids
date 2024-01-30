@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,7 +10,8 @@ public class BoidManager : MonoBehaviour
     int numberOfBoids;
     [SerializeField, Range(0, 3)]
     float speed = 1f;
-    [SerializeField, Range(0, 1)]
+
+    [SerializeField, Range(0.5f, 2f)]
     float perceptionDistance = 0;
 
     [SerializeField]
@@ -19,9 +21,14 @@ public class BoidManager : MonoBehaviour
     Vector3 range;
 
     [SerializeField]
-    bool collision, directionMatching, centering, respawn;
+    bool collision, matchDirection, centering, respawn, showDistance, showExample;
     
+    
+    [SerializeField, Range(.01f, .05f)]
+    float lineWidth;
+
     Transform[] boids;
+
 
 
     void Awake() {
@@ -32,19 +39,24 @@ public class BoidManager : MonoBehaviour
                 boidPrefab, 
                 GetRandomPosition(), 
                 Quaternion.Euler(0f, 0f, rotation));
+            
             boids[i] = boid;
             boid.SetParent(transform, false);
         }
+        
     }
 
     void Update() {
         foreach(Transform boid in boids){
             Boid boid1 = boid.GetComponent<Boid>();
-            boid1.Move(speed);
-            if(directionMatching)
-                boid1.DirectionMatching(boids, perceptionDistance);
+            if(showExample) ShowValidDistances();
 
-            if(ValidPosition(boid.transform.localPosition)){
+            if(matchDirection)
+                boid1.MatchDirection(boids, perceptionDistance);
+
+            boid1.Move(speed);
+
+            if(!ValidPosition(boid.transform.localPosition)){
                 boid.transform.localPosition = GetRandomPosition();
             }
 
@@ -52,9 +64,52 @@ public class BoidManager : MonoBehaviour
         
     }
 
+    
+
+    void ShowValidDistances(){
+        Boid firstBoid = boids[0].GetComponent<Boid>();
+        SpriteRenderer spriteRenderer = boids[0].GetComponent<SpriteRenderer>();
+        spriteRenderer.color = Color.yellow;
+
+        List<Vector3> endPoint = new List<Vector3>();
+
+        LineRenderer lineRenderer = boids[0].GetComponent<LineRenderer>();
+        if(lineRenderer == null){
+            lineRenderer = boids[0].AddComponent<LineRenderer>();
+        }
+        lineRenderer.positionCount = 0;
+
+        for(int i = 1; i < boids.Length; i++){
+            Transform other = boids[i];
+            SpriteRenderer otherSprite = other.GetComponent<SpriteRenderer>();
+            if(firstBoid.ValidDistance(other, perceptionDistance)){
+                endPoint.Add(other.position);
+                otherSprite.color = Color.green;
+            }else{
+                otherSprite.color = Color.red;
+
+            }
+        }
+        lineRenderer.startColor = Color.green;
+        lineRenderer.endColor= Color.green;
+        lineRenderer.startWidth= lineWidth;
+        lineRenderer.endWidth= lineWidth;
+
+        lineRenderer.positionCount =  endPoint.Count * 2 + 1;
+        lineRenderer.SetPosition(0, boids[0].position);
+        for(int i = 0, j = 1; i < endPoint.Count; i++, j+=2){
+            lineRenderer.SetPosition(j, endPoint[i]);
+            lineRenderer.SetPosition(j+1, boids[0].position);
+
+        }
+       
+
+
+    }
+
     bool ValidPosition(Vector3 localPosition){
-        return respawn && (localPosition.x < -range.x || localPosition.y < -range.y 
-            || localPosition.y > range.x || localPosition.y > range.y);
+        return respawn && localPosition.x > -range.x && localPosition.y > -range.y 
+            && localPosition.x < range.x && localPosition.y < range.y;
     }
 
     Vector3 GetRandomPosition(){
