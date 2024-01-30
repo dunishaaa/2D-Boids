@@ -21,7 +21,7 @@ public class BoidManager : MonoBehaviour
     Vector3 range;
 
     [SerializeField]
-    bool collision, matchDirection, centering, respawn, showDistance, showExample;
+    bool AvoidCollision, matchDirection, centerFlock, showDistance;
     
     
     [SerializeField, Range(.01f, .05f)]
@@ -49,15 +49,29 @@ public class BoidManager : MonoBehaviour
     void Update() {
         foreach(Transform boid in boids){
             Boid boid1 = boid.GetComponent<Boid>();
-            if(showExample) ShowValidDistances();
+            if(showDistance) ShowValidDistances();
 
             if(matchDirection)
                 boid1.MatchDirection(boids, perceptionDistance);
 
+            if(centerFlock)
+                boid1.CenterOfFlock(boids, perceptionDistance);
+            
+            if(AvoidCollision)
+                boid1.AvoidCollision(boids, perceptionDistance);
+
             boid1.Move(speed);
 
-            if(!ValidPosition(boid.transform.localPosition)){
-                boid.transform.localPosition = GetRandomPosition();
+            Vector3 localBoid = boid.transform.position;
+            if(!ValidPosition(localBoid)){
+                if(localBoid.x > range.x) localBoid.x = -range.x;
+                if(localBoid.x < -range.x) localBoid.x = range.x;
+
+                if(localBoid.y > range.y) localBoid.y = -range.y;
+                if(localBoid.y < -range.y) localBoid.y = range.y;
+                
+                boid.transform.position = localBoid;
+
             }
 
         }
@@ -108,7 +122,7 @@ public class BoidManager : MonoBehaviour
     }
 
     bool ValidPosition(Vector3 localPosition){
-        return respawn && localPosition.x > -range.x && localPosition.y > -range.y 
+        return localPosition.x > -range.x && localPosition.y > -range.y 
             && localPosition.x < range.x && localPosition.y < range.y;
     }
 
