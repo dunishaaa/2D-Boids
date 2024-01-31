@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class BoidManager : MonoBehaviour
 {
@@ -55,7 +53,7 @@ public class BoidManager : MonoBehaviour
                 boid1.MatchDirection(boids, perceptionDistance);
 
             if(centerFlock)
-                boid1.CenterOfFlock(boids, perceptionDistance);
+                boid1.FindCentroid(boids, perceptionDistance);
             
             if(AvoidCollision)
                 boid1.AvoidCollision(boids, perceptionDistance);
